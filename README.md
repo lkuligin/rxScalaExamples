@@ -22,13 +22,13 @@ observing interval = 4
 ***
 Creating Observable with *.create*:
 ```scala
-private def observableInt: Observable[Int] = {
+private def observableInt(amountMax: Int = 10): Observable[Int] = {
     Observable(
       { observer => {
         try {
           val a = true
           if (!observer.isUnsubscribed) {
-            (1 to 10) foreach {
+            (1 to amountMax) foreach {
               i => {
                 System.out.println(s"observable: emitting ${i} and waiting for next item")
                 observer.onNext(i)
@@ -49,7 +49,7 @@ private def observableInt: Observable[Int] = {
 Only *.groupBy* will create an `Observable[partition[T], Observable[T1]]`, so it makes sense to use it together with flatMap:
 ```scala
 def groupByExample = {
-  val o: Observable[IntPair] =  observableInt
+  val o: Observable[IntPair] =  observableInt()
     .groupBy(_ % 2)
     .flatMap({
       case (partition, lines) => lines.map({el => new IntPair(partition, el)})
@@ -80,3 +80,4 @@ consuming Pair of 1 and 9
 observable: emitting 10 and waiting for next item
 consuming Pair of 0 and 10
 ```
+***
