@@ -23,14 +23,17 @@ object Application extends App with LazyLogging {
     new AppModule()
   )
 
-  logger.info("############# Starting example1 #############")
-
   val example1 = injector.instance[Example1]
   val example2 = injector.instance[Example2]
   val executor = injector.instance[ExecutorService]
-  System.out.println("$$$ without blocking - we might terminate before observable emits values")
 
-  val httpServer = injector.instance[HttpServer]
+  //example1.errorHandling2
+  //example1.errorHandling
+  example2.OwnObservableConcurrent
+  logger.info("done")
+
+
+  /*val httpServer = injector.instance[HttpServer]
   httpServer.start()
 
   private val mainThread = Thread.currentThread()
@@ -57,7 +60,7 @@ object Application extends App with LazyLogging {
     logger.debug("Cleaning up....")
     httpServer.stop()
     LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext].stop()
-  }
+  }*/
 
   //example1.errorHandling
   //example1.errorHandling2

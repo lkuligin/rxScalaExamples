@@ -4,7 +4,7 @@ import java.util.concurrent.Executor
 
 import com.typesafe.scalalogging.LazyLogging
 import rx.Observable.OnSubscribe
-import rx.lang.scala.Observable
+import rx.lang.scala.{Observable, Subscriber}
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
@@ -15,6 +15,38 @@ import scala.util.{Failure, Success}
   * Created by lkuligin on 27/01/2017.
   */
 class Example2 extends LazyLogging {
+
+  def step1 = {
+    var i = 0
+    def createObservable: Observable[Int] = Observable {
+      subscriber: Subscriber[Int] => {
+        while (i < 5 && !subscriber.isUnsubscribed) {
+          subscriber.onNext(i)
+          i += 1;
+        }
+        if (!subscriber.isUnsubscribed) {
+          subscriber.onCompleted()
+        }
+
+      }
+    }
+    val o = createObservable
+    o
+      .map(el => 3/(el-3))
+      .retry
+      .onErrorResumeNext(_ => {
+        System.out.print("error")
+        Observable.empty
+    })
+       .retry
+     .subscribe(println(_))
+  }
+
+  def step2 = {
+    val emulator = new DataEmulator()
+    val o: Observable[Int] = DataObservable(emulator)
+    o.subscribe(println(_))
+  }
 
   def OwnObservableAlone = {
     import scala.concurrent.ExecutionContext.Implicits.global

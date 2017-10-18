@@ -57,7 +57,9 @@ class Example1 extends LazyLogging {
 
   def step2(): Unit = {
     val o = Observable.interval(200 millis).take(5)
-    o.toBlocking.subscribe(n => System.out.println(s"observing interval = ${n}"))
+    o
+      .toBlocking
+      .subscribe(n => System.out.println(s"observing interval = ${n}"))
   }
 
   def step3: Observable[Boolean] = {
@@ -66,9 +68,19 @@ class Example1 extends LazyLogging {
     for ((n1, n2) <- (first zip second)) yield (n1 == n2)
   }
 
+  def step4(): Unit = {
+    val o = Observable.interval(200 millis).take(5)
+    o
+      .filter(_ % 3 != 0)
+      .map(_ * 2)
+      .toBlocking
+      .subscribe(n => System.out.println(s"observing interval = ${n}"))
+  }
+
   def step5(): Observable[Long] = {
     Observable.interval(200 millis).take(100)
   }
+
 
   def groupByExample = {
     val o: Observable[IntPair] =  observableInt()
@@ -91,7 +103,21 @@ class Example1 extends LazyLogging {
     o subscribe  {el => {System.out.println(s"consuming ${el}")}}
   }
 
-  def errorHandling = {
+  def errorHandling0: Unit  = {
+    val o1 = List(1, 2, 3, 0, 4) toObservable
+    val o2 = List(1, 2, 2, 4, 5) toObservable
+
+    val o3 = o1 zip o2 map {case (i1, i2) => i2 / i1 }
+
+    o3.subscribe(
+      onNext = el => {System.out.println(el)},
+      onError = e => System.out.println("error"),
+      onCompleted = () => System.out.println("done")
+
+    )
+  }
+
+  def errorHandling: Unit  = {
     val o1 = List(1, 2, 3, 0, 4) toObservable
     val o2 = List(1, 2, 2, 4, 5) toObservable
 
@@ -107,7 +133,7 @@ class Example1 extends LazyLogging {
         override def onError(e: Throwable) {
           if (!subscriber.isUnsubscribed)
             System.out.println("error")
-            //subscriber.onNext(Failure(e))
+            subscriber.onNext(Failure(e))
         }
 
         override def onCompleted() {
@@ -123,10 +149,20 @@ class Example1 extends LazyLogging {
   def errorHandling2 = {
     def reportError(error: Throwable): Observable[Int] = {
       logger.error("error", error)
-      Observable.empty
+      List(1) toObservable
     }
     val o1 = List(1, 2, 3, 0, 4) toObservable
     val o2: Observable[Int] = o1.map(i => 12/i).onErrorResumeNext(reportError)
+    o2 subscribe(println(_))
+  }
+
+  def errorHandling3 = {
+    def reportError(error: Throwable): Observable[Int] = {
+      logger.error("error", error)
+      List(1) toObservable
+    }
+    val o1 = List(1, 2, 3, 0, 4) toObservable
+    val o2: Observable[Int] = o1.map(i => 12/i)
     o2 subscribe(println(_))
   }
 

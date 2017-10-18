@@ -40,7 +40,7 @@ class DataObservable(source: DataEmulator, id: String = "1") extends SyncOnSubsc
   }
 
   override def onUnsubscribe(state: DataObservableState): Unit = {
-    logger.info(s"Subscriber has been unsubscribed in thread ${Thread.currentThread().getName()}, current state ${state}")
+    logger.info(s"Subscriber has been really unsubscribed in thread ${Thread.currentThread().getName()}, current state ${state}")
   }
 }
 

@@ -33,13 +33,13 @@ class Example4(executor: Executor, id: Int) extends LazyLogging {
 
   val emulator = new DataEmulator(10, 500, false)
 
-  /*val s = DataObservable(emulator, s"${id}")
-    .doOnEach(el => {
+  val o = DataObservable(emulator, s"${id}")
+  /*  .doOnEach(el => {
       logger.info(s"consumer${id} is consuming ${el} in ${Thread.currentThread().getName()}")
       Thread.sleep(100)}
     )*/
 
-  val subscriber = DataObservable(emulator, s"${id}")
+  val subscriber = o
         .doOnEach(el => {
           logger.info(s"consumer${id} is consuming ${el} in ${Thread.currentThread().getName()}")
           Thread.sleep(100)}
